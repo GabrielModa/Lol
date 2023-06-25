@@ -1,10 +1,27 @@
 const puppeteer = require('puppeteer');
 
-const lane = 'middle';
-const championPool = ['Anivia', 'Annie', 'Cassiopeia', 'Syndra', 'Viktor', 'Vex', 'Lux', 'Malzahar', 'Malphite', 'Kled', 'Orianna', 'Ekko', 'Cho`Gath', 'Kassadin', 'Sylas', 'Azir'];
+const championPools = {
+    middle: ['Cassiopeia', 'Ornn', 'Maokai', 'Kled', 'Malphite', 'Irelia', 'Cho`Gath', 'Gwen', 'Mordekaiser', 'Shen', 'Singed', 'Anivia', 'Garen', 'Nasus', 'Wukong', 'Volibear', 'Swain'],// Adicione os campeões para a lane "middle"
+    top: ['Cassiopeia', 'Ornn', 'Maokai', 'Kled', 'Malphite', 'Irelia', 'Cho`Gath', 'Gwen', 'Mordekaiser', 'Shen', 'Singed', 'Anivia', 'Garen', 'Nasus', 'Wukong', 'Volibear'], // Adicione os campeões para a lane "top"
+    jungle: ['Jarvan IV', 'Kayn', 'Karthus', 'Maokai', 'Ekko', 'Warwick', 'Nocturne', 'Vi', 'Volibear'], // Adicione os campeões para a lane "jungle"
+    bottom: ['Karthus', 'Cassiopeia', 'Jhin', 'Ashe', 'Miss Fortune', 'Swain', 'Jinx', 'Syndra', 'Kog`Maw', 'Tristana', 'Caitlyn', 'Lucian'], // Adicione os campeões para a lane "bottom"
+    support: ['Janna', 'Soraka', 'Annie', 'Zilean', 'Maokai', 'Lux', 'Leona', 'Orianna'] // Adicione os campeões para a lane "support"
+};
+
+const lane = 'jungle'; // Defina a lane desejada
+
+const championPool = championPools[lane];
+
+// Use a championPool de acordo com a lane selecionada
+console.log(`ChampionPool selecionada:
+ Lane: ${lane}
+ championPool: ${championPool}`,);
+console.log('-----------------------');
+
+
 const winRateThreshold = 51; // Taxa de vitória mínima desejada
 const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
-const pickRateThreshold = 2; // Taxa de escolha mínima desejada (em %)
+// const pickRateThreshold = 2; // Taxa de escolha mínima desejada (em %)
 // const banRateThreshold = 10; // Taxa de banimento mínima desejada (em %)
 
 (async () => {
@@ -66,7 +83,13 @@ const pickRateThreshold = 2; // Taxa de escolha mínima desejada (em %)
             (!isTiersFiltered || tiersToFilter.includes(championInfo.tier)) &&
             (!isPickRateFiltered || championInfo.pickRate >= pickRateThreshold) &&
             (!isBanRateFiltered || championInfo.banRate >= banRateThreshold)) {
-            console.log(`Informações de ${championName}:`, championInfo);
+            console.log(`Informações de ${championName}:`);
+            console.log('Rank:', championInfo.rank);
+            console.log('Tier:', championInfo.tier);
+            console.log('Win Rate:', `${championInfo.winRate.toFixed(2)} %`);
+            console.log('Pick Rate:', `${championInfo.pickRate.toFixed(2)} %`);
+            console.log('Ban Rate:', `${championInfo.banRate.toFixed(2)} %`);
+            console.log('-----------------------');
         };
     };
 
