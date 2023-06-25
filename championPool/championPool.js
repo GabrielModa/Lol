@@ -1,23 +1,25 @@
 const puppeteer = require('puppeteer');
 
 const championPools = {
-    middle: ['Cassiopeia', 'Ornn', 'Maokai', 'Kled', 'Malphite', 'Irelia', 'Cho`Gath', 'Gwen', 'Mordekaiser', 'Shen', 'Singed', 'Anivia', 'Garen', 'Nasus', 'Wukong', 'Volibear', 'Swain'],// Adicione os campeões para a lane "middle"
+    // middle: ['Anivia', 'Annie', 'Cassiopeia', 'Syndra', 'Viktor', 'Vex', 'Lux', 'Malzahar', 'Malphite', 'Kled', 'Orianna', 'Ekko', 'Cho`Gath', 'Kassadin', 'Sylas', 'Azir'],// Adicione os campeões para a lane "middle"
     top: ['Cassiopeia', 'Ornn', 'Maokai', 'Kled', 'Malphite', 'Irelia', 'Cho`Gath', 'Gwen', 'Mordekaiser', 'Shen', 'Singed', 'Anivia', 'Garen', 'Nasus', 'Wukong', 'Volibear'], // Adicione os campeões para a lane "top"
     jungle: ['Jarvan IV', 'Kayn', 'Karthus', 'Maokai', 'Ekko', 'Warwick', 'Nocturne', 'Vi', 'Volibear'], // Adicione os campeões para a lane "jungle"
     bottom: ['Karthus', 'Cassiopeia', 'Jhin', 'Ashe', 'Miss Fortune', 'Swain', 'Jinx', 'Syndra', 'Kog`Maw', 'Tristana', 'Caitlyn', 'Lucian'], // Adicione os campeões para a lane "bottom"
     support: ['Janna', 'Soraka', 'Annie', 'Zilean', 'Maokai', 'Lux', 'Leona', 'Orianna'] // Adicione os campeões para a lane "support"
 };
 
-const lane = 'jungle'; // Defina a lane desejada
+const lane = 'middle'; // Defina a lane desejada
 
 const championPool = championPools[lane];
 
 // Use a championPool de acordo com a lane selecionada
-console.log(`ChampionPool selecionada:
- Lane: ${lane}
- championPool: ${championPool}`,);
+console.log(`Lane selecionada: ${lane}`);
+if (championPool) {
+    console.log(`ChampionPool selecionada: ${championPool}`);
+} else {
+    console.log('Nenhuma ChampionPool selecionada. Todos os campeões possíveis serão considerados.');
+}
 console.log('-----------------------');
-
 
 const winRateThreshold = 51; // Taxa de vitória mínima desejada
 const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
@@ -44,11 +46,11 @@ const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
         const championRow = championRows[i];
         const championName = await page.evaluate((row) => row.textContent, championRow);
 
-        if (championPool.includes(championName)) {
+        if (!championPool || championPool.includes(championName)) {
             filteredChampionRows.push(championRow);
             championIndices.push(i);
-        };
-    };
+        }
+    }
 
     // Iterar sobre a lista de campeões filtrada
     for (let i = 0; i < filteredChampionRows.length; i++) {
@@ -79,10 +81,12 @@ const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
         const isBanRateFiltered = typeof banRateThreshold !== 'undefined';
 
         // Aplica os filtros se estiverem definidos ou exibe todas as informações se não estiverem definidos
-        if ((!isWinRateFiltered || championInfo.winRate >= winRateThreshold) &&
+        if (
+            (!isWinRateFiltered || championInfo.winRate >= winRateThreshold) &&
             (!isTiersFiltered || tiersToFilter.includes(championInfo.tier)) &&
             (!isPickRateFiltered || championInfo.pickRate >= pickRateThreshold) &&
-            (!isBanRateFiltered || championInfo.banRate >= banRateThreshold)) {
+            (!isBanRateFiltered || championInfo.banRate >= banRateThreshold)
+        ) {
             console.log(`Informações de ${championName}:`);
             console.log('Rank:', championInfo.rank);
             console.log('Tier:', championInfo.tier);
@@ -90,8 +94,8 @@ const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
             console.log('Pick Rate:', `${championInfo.pickRate.toFixed(2)} %`);
             console.log('Ban Rate:', `${championInfo.banRate.toFixed(2)} %`);
             console.log('-----------------------');
-        };
-    };
+        }
+    }
 
     await browser.close();
 })();
