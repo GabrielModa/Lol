@@ -30,8 +30,8 @@ const pickRateThreshold = 2; // Taxa de escolha mínima desejada (em %)
         if (championPool.includes(championName)) {
             filteredChampionRows.push(championRow);
             championIndices.push(i);
-        }
-    }
+        };
+    };
 
     // Iterar sobre a lista de campeões filtrada
     for (let i = 0; i < filteredChampionRows.length; i++) {
@@ -67,8 +67,8 @@ const pickRateThreshold = 2; // Taxa de escolha mínima desejada (em %)
             (!isPickRateFiltered || championInfo.pickRate >= pickRateThreshold) &&
             (!isBanRateFiltered || championInfo.banRate >= banRateThreshold)) {
             console.log(`Informações de ${championName}:`, championInfo);
-        }
-    }
+        };
+    };
 
     await browser.close();
 })();
