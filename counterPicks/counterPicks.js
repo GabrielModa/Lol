@@ -10,6 +10,12 @@ let currentPositionIndex = 0;
     try {
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
+        // Configuração para ignorar os diálogos de aceitação
+        page.on('dialog', async (dialog) => {
+            console.log(`Diálogo: ${dialog.message()}`);
+            await dialog.dismiss();
+        });
+
         await page.goto(`https://lolalytics.com/lol/${championNameLowercase}/build/`);
 
         await page.waitForSelector('.Panel_data__dtE8F');
