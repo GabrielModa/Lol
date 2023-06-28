@@ -1,14 +1,20 @@
 const puppeteer = require('puppeteer');
 
+const selectedButton = 'Weak Against'; // Escolha entre 'Strong Against', 'Weak Against', 'Good Synergy' ou 'Bad Synergy'
+
 const championName = 'Malzahar';
 const championNameLowercase = championName.toLowerCase();
-const selectedButton = 'Weak Against'; // Escolha entre 'Strong Against', 'Weak Against', 'Good Synergy' ou 'Bad Synergy'
+
+const laneChampion = 'middle';
+const laneChampionLowercase = laneChampion.toLowerCase();
+
 const positionNames = ['TOP', 'JG', 'MID', 'ADC', 'SUP'];
 let currentPositionIndex = 0;
 
 (async () => {
+    let browser;
     try {
-        const browser = await puppeteer.launch({ headless: false });
+        browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
         // Configuração para ignorar os diálogos de aceitação
         page.on('dialog', async (dialog) => {
@@ -16,7 +22,11 @@ let currentPositionIndex = 0;
             await dialog.dismiss();
         });
 
-        await page.goto(`https://lolalytics.com/lol/${championNameLowercase}/build/`);
+        await page.goto(`https://lolalytics.com/lol/${championNameLowercase}/build/?lane=${laneChampionLowercase}`);
+
+        await page.waitForTimeout(2000);
+
+        await scrollToBottom(page);
 
         await page.waitForSelector('.Panel_data__dtE8F');
 
@@ -51,8 +61,14 @@ let currentPositionIndex = 0;
                 let seenCounters = {};
 
                 const panelDataElements = await page.$$('.Panel_data__dtE8F');
+                let sectionCount = 0;
 
                 for (const panelDataElement of panelDataElements) {
+                    // Restringe o loop às primeiras 5 seções
+                    if (sectionCount === 5) {
+                        break;
+                    }
+
                     let scrollCounters = [];
 
                     while (true) {
@@ -109,21 +125,33 @@ let currentPositionIndex = 0;
 
                     if (scrollCounters.length > 0) {
                         console.log(`Total de counters no Scroll (${getNextPositionName()}):`, scrollCounters.length);
-                        console.table(scrollCounters);
+                        console.table(scrollCounters.map(({ championName, ...rest }) => ({
+                            champion: championName,
+                            ...rest
+                        })));
                         console.log('-----------------------');
                     }
+
+                    sectionCount++;
                 }
 
+                await browser.close(); // Fechar o navegador
             } else {
                 console.log(`Botão "${selectedButton}" não encontrado.`);
             }
         } else {
             console.log('Container dos botões de contador não encontrado.');
         }
-
-        await browser.close();
     } catch (error) {
         console.error('Ocorreu um erro:', error);
+    } finally {
+        try {
+            if (browser) {
+                await browser.close();
+            }
+        } catch (error) {
+            console.error('Erro ao fechar o navegador:', error);
+        }
     }
 })();
 
@@ -131,4 +159,21 @@ function getNextPositionName() {
     const positionName = positionNames[currentPositionIndex];
     currentPositionIndex = (currentPositionIndex + 1) % positionNames.length;
     return positionName;
+}
+
+async function scrollToBottom(page) {
+    await page.evaluate(async () => {
+        await new Promise((resolve, reject) => {
+            const distance = 100;
+            const delay = 100;
+            const timer = setInterval(() => {
+                document.documentElement.scrollTop += distance;
+                document.documentElement.scrollBy(0, distance);
+                if (document.documentElement.scrollTop + window.innerHeight >= document.documentElement.scrollHeight) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, delay);
+        });
+    });
 }
