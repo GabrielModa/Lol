@@ -1,0 +1,18 @@
+# Arquivos de configuração local
+.env
+
+# Diretório de dependências
+node_modules
+
+# Arquivos de log
+logs
+
+# Arquivos gerados durante a construção
+/build
+
+# Arquivos de backup
+*.bak
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db

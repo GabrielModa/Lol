@@ -1,14 +1,14 @@
 const puppeteer = require('puppeteer');
 
 const championPools = {
-    // middle: ['Anivia', 'Annie', 'Cassiopeia', 'Syndra', 'Viktor', 'Vex', 'Lux', 'Malzahar', 'Malphite', 'Kled', 'Orianna', 'Ekko', 'Cho`Gath', 'Kassadin', 'Sylas', 'Azir'],// Adicione os campeões para a lane "middle"
+    middle: ['Anivia', 'Annie', 'Cassiopeia', 'Syndra', 'Viktor', 'Vex', 'Lux', 'Malzahar', 'Malphite', 'Kled', 'Orianna', 'Ekko', 'Cho`Gath', 'Kassadin', 'Sylas', 'Azir'],// Adicione os campeões para a lane "middle"
     top: ['Cassiopeia', 'Ornn', 'Maokai', 'Kled', 'Malphite', 'Irelia', 'Cho`Gath', 'Gwen', 'Mordekaiser', 'Shen', 'Singed', 'Anivia', 'Garen', 'Nasus', 'Wukong', 'Volibear'], // Adicione os campeões para a lane "top"
     jungle: ['Jarvan IV', 'Kayn', 'Karthus', 'Maokai', 'Ekko', 'Warwick', 'Nocturne', 'Vi', 'Volibear'], // Adicione os campeões para a lane "jungle"
     bottom: ['Karthus', 'Cassiopeia', 'Jhin', 'Ashe', 'Miss Fortune', 'Swain', 'Jinx', 'Syndra', 'Kog`Maw', 'Tristana', 'Caitlyn', 'Lucian'], // Adicione os campeões para a lane "bottom"
     support: ['Janna', 'Soraka', 'Annie', 'Zilean', 'Maokai', 'Lux', 'Leona', 'Orianna'] // Adicione os campeões para a lane "support"
 };
 
-const lane = 'middle'; // Defina a lane desejada
+const lane = 'top'; // Defina a lane desejada
 
 const championPool = championPools[lane];
 
@@ -31,7 +31,8 @@ const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
     const page = await browser.newPage();
     await page.goto(`https://lolalytics.com/lol/tierlist/?lane=${lane}`);
 
-    await page.waitForTimeout(2000);
+    // Espera por 22 segundos
+    await delay(22000);
 
     // Aguarda a div principal que contém as linhas de campeões
     await page.waitForSelector('.TierList_list__j33gd');
@@ -99,3 +100,8 @@ const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A']; // Tiers para filtrar
 
     await browser.close();
 })();
+
+// Função para criar um atraso de espera
+async function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
