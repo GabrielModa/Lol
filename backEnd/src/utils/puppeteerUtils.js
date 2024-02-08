@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 
-async function fetchData(lane, championPool) {
+async function fetchData(lane, championPool, tiersToFilter, winRateNumericThreshold) {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     const championData = []; // Array para armazenar os dados dos campeões
@@ -31,7 +31,7 @@ async function fetchData(lane, championPool) {
         await page.waitForSelector('.flex:last-of-type');
 
         const htmlString = await page.content();
-        championData.push(...processHTMLString(htmlString, lane, championPool)); // Adiciona os dados processados ao array championData
+        championData.push(...processHTMLString(htmlString, lane, championPool, tiersToFilter, winRateNumericThreshold)); // Adiciona os dados processados ao array championData
     } catch (error) {
         console.error(error);
     } finally {
@@ -40,7 +40,7 @@ async function fetchData(lane, championPool) {
     }
 }
 
-function processHTMLString(htmlString, lane, championPool) {
+function processHTMLString(htmlString, lane, championPool, tiersToFilter, winRateNumericThreshold) {
     const $ = cheerio.load(htmlString);
     const processedData = [];
 
@@ -61,7 +61,7 @@ function processHTMLString(htmlString, lane, championPool) {
         const winRateNumeric = winRateMatch ? parseFloat(winRateMatch[1]) : 0;
 
         if (championName && winRateNumeric && tier && pickRate && banRate) {
-            if (championPool.includes(championName) && tierInThreshold(tier) && winRateNumeric >= 40) {
+            if (championPool.includes(championName) && tierInThreshold(tier, tiersToFilter) && winRateNumeric >= winRateNumericThreshold) {
                 processedData.push({
                     name: championName,
                     lane: lane + " " + laneRate,
@@ -77,8 +77,7 @@ function processHTMLString(htmlString, lane, championPool) {
     return processedData;
 }
 
-function tierInThreshold(tier) {
-    const tiersToFilter = ['S', 'S+', 'S-', 'A+', 'A', 'A-', 'D-'];
+function tierInThreshold(tier, tiersToFilter) {
     return tiersToFilter.includes(tier);
 }
 
@@ -87,5 +86,6 @@ function sleep(ms) {
 }
 
 module.exports = {
-    fetchData
+    fetchData,
+    processHTMLString
 };

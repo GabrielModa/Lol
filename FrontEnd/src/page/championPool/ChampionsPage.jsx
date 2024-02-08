@@ -1,9 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, InputLabel, Button, TextField, Select, MenuItem } from '@mui/material';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    FormControl,
+    InputLabel,
+    Button,
+    TextField,
+    Select,
+    MenuItem
+} from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 
-const nomes_herois = [
+// Lista de campeões
+const championNames = [
     "Aatrox", "Ahri", "Akali", "Akshan", "Alistar", "Amumu", "Anivia", "Annie", "Aphelios", "Ashe",
     "Aurelion Sol", "Azir", "Bardo", "Bel'Veth", "Blitzcrank", "Brand", "Braum", "Briar", "Caitlyn",
     "Camille", "Cassiopeia", "Cho'Gath", "Corki", "Darius", "Diana", "Dr. Mundo", "Draven", "Ekko",
@@ -23,38 +38,36 @@ const nomes_herois = [
     "Yasuo", "Yone", "Yorick", "Yuumi", "Zac", "Zed", "Zeri", "Ziggs", "Zilean", "Zoe", "Zyra"
 ];
 
-// Função para formatar os nomes de campeões
-function formatarNomesHerois(nomes) {
-    return nomes.map(nome => {
-        // Converte para minúsculas e remove espaços e caracteres especiais
-        const nomeFormatado = nome.toLowerCase().replace(/\s/g, '').replace(/[^a-zA-Z]/g, '');
-        return nomeFormatado;
-    });
-}
+// Opções para o campo de tier list
+const tierListOptions = [
+    "S+", "S", "S-", "A+", "A", "A-",
+    "B+", "B", "B-", "C+", "C", "C-",
+    "D+", "D", "D-"
+];
 
-function ChampionsPage() {
+// Componente para formatar os nomes de campeões
+const formatChampionNames = (names) => {
+    return names.map(name => name.toLowerCase().replace(/\s+/g, ''));
+};
+
+const ChampionsPage = () => {
+    // Estados
     const [lane, setLane] = useState('middle');
-    const [champions, setChampions] = useState([]);
     const [selectedChampions, setSelectedChampions] = useState([]);
+    const [tierList, setTierList] = useState(["S+", "S", "S-", "A+", "A", "A-"]);
+    const [winRateNumericThreshold, setWinRateNumericThreshold] = useState(40);
 
-    // Formatando os nomes dos campeões
-    const nomesHeroisFormatados = formatarNomesHerois(nomes_herois);
+    // Manipuladores de eventos
+    const handleChangeLane = (event) => setLane(event.target.value);
+    const handleChangeSelectedChampions = (event, value) => setSelectedChampions(value || []);
+    const handleChangeTiers = (event, value) => setTierList(value || []);
+    const handleChangeWinRateNumericThreshold = (event) => setWinRateNumericThreshold(event.target.value);
 
-    // Função para lidar com a mudança de lane
-    const handleChangeLane = (event) => {
-        setLane(event.target.value);
-    };
-
-    // Função para lidar com a mudança dos campeões selecionados
-    const handleChangeSelectedChampions = (event, value) => {
-        setSelectedChampions(value);
-    };
-
-    // Função para lidar com o clique no botão Save Selected Champions
     const handleSaveSelectedChampions = async () => {
         try {
+            console.log('Saving selected champions:', { lane, selectedChampions, tierList, winRateNumericThreshold });
             if (selectedChampions.length > 0) {
-                await axios.post('http://localhost:3001/selected-champions', { lane, selectedChampions });
+                await axios.post('http://localhost:3001/selected-champions', { lane, selectedChampions, tierList, winRateNumericThreshold });
                 console.log('Selected champions saved successfully!');
             } else {
                 console.log('No champions selected to save.');
@@ -62,39 +75,6 @@ function ChampionsPage() {
         } catch (error) {
             console.error('Error saving selected champions:', error);
         }
-    };
-
-
-    // Função para renderizar a tabela de campeões
-    const renderChampionsTable = () => {
-        return (
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Lane</TableCell>
-                            <TableCell>Win Rate</TableCell>
-                            <TableCell>Tier</TableCell>
-                            <TableCell>Pick Rate</TableCell>
-                            <TableCell>Ban Rate</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {champions.map((champion, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{champion.name}</TableCell>
-                                <TableCell>{champion.lane}</TableCell>
-                                <TableCell>{champion.winRate}</TableCell>
-                                <TableCell>{champion.tier}</TableCell>
-                                <TableCell>{champion.pickRate}</TableCell>
-                                <TableCell>{champion.banRate}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
     };
 
     return (
@@ -116,24 +96,40 @@ function ChampionsPage() {
                 </Select>
             </FormControl>
 
-            {/* Select para escolher os campeões */}
             <FormControl fullWidth>
                 <Autocomplete
                     multiple
                     id="champion-select"
-                    options={nomesHeroisFormatados}
+                    options={formatChampionNames(championNames)}
+                    getOptionLabel={(option) => option}
                     onChange={handleChangeSelectedChampions}
                     renderInput={(params) => <TextField {...params} label="Select Champions" />}
                 />
             </FormControl>
 
-            {/* Botão para salvar os campeões selecionados */}
-            <Button variant="contained" onClick={handleSaveSelectedChampions}>Save Selected Champions</Button>
+            <FormControl fullWidth>
+                <Autocomplete
+                    multiple
+                    id="tiers-select"
+                    options={tierListOptions}
+                    value={tierList}
+                    onChange={handleChangeTiers}
+                    renderInput={(params) => <TextField {...params} label="Select Tiers" />}
+                />
+            </FormControl>
 
-            {/* Tabela de campeões */}
-            {renderChampionsTable()}
+            <TextField
+                fullWidth
+                type="number"
+                id="winRateNumericThreshold"
+                label="Win Rate Numeric Threshold"
+                value={winRateNumericThreshold}
+                onChange={handleChangeWinRateNumericThreshold}
+            />
+
+            <Button variant="contained" onClick={handleSaveSelectedChampions}>Save Selected Champions</Button>
         </div>
     );
-}
+};
 
 export default ChampionsPage;
