@@ -13,6 +13,7 @@ import {
     Button
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import './ChampionsPage.css'
 
 // Lista de campeões
 const championNames = [
@@ -148,8 +149,18 @@ const ChampionsPage = () => {
                         <TableBody>
                             {insertedChampions.map((champion, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{champion.name}</TableCell>
-                                    <TableCell>{champion.lane}</TableCell>
+                                    <TableCell className="champion-cell">
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <img src={`https://cdn5.lolalytics.com/champx46/${champion.name}.webp`} alt={champion.name} style={{ width: '50px', marginBottom: '5px' }} />
+                                            <span style={{ textAlign: 'center', fontSize: '14px' }}>{champion.name}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="lane-cell">
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <img src={`https://cdn5.lolalytics.com/lane54/${champion.lane.split(' ')[0]}.webp`} alt={champion.lane} style={{ width: '30px', marginRight: '5px' }} />
+                                            <span>{champion.lane.split(' ')[0]}</span>
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{champion.winRate}</TableCell>
                                     <TableCell>{champion.tier}</TableCell>
                                     <TableCell>{champion.pickRate}</TableCell>

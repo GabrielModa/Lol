@@ -1,0 +1,24 @@
+/* Estilo para a célula do campeão */
+.champion-cell {
+    text-align: center;
+}
+
+/* Estilo para a tabela */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+    text-align: left;
+    font-size: 16px; /* Tamanho da fonte padrão */
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold; /* Deixa o cabeçalho em negrito */
+    font-size: 18px; /* Aumenta o tamanho da fonte dos cabeçalhos */
+}
+
